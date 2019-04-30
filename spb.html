@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+
+<head>
+    <!-- Add meta tags for mobile and IE -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+     <script src="https://www.paypalobjects.com/api/checkout.js"></script>
+</head>
+
+<body>
+<div class="container-fluid text-center">    
+  <div class="row content">
+    <div>
+        <h3 >Payment method</h3>
+                <label class="items-center col-12">
+                    <div class="col-6 items-center">
+                        <div class="h5">
+                            PayPal 
+                        </div>
+                    </div>
+                </label>
+        </div>
+      <div id="paypal-button"></div>
+  </div>
+</div>
+
+    <script>  
+        paypal.Button.render({
+            env: 'sandbox',
+            style:{
+                layout: 'horizontal', 
+                size:  'medium',   
+                shape: 'pill',   
+                color: 'gold'   
+            },
+            client: {  
+                sandbox: 'AQDgisPYcXblBLEoWOe4E7VhiNBFH6cCojUNT-whYC93N5xhKUJM4urRMFcXNDNichcHLsq1UsJdMMdw' 
+            },  
+            commit: true, 
+            payment: function(data, actions) { 
+                return actions.payment.create({  
+                    payment: {  
+                        transactions: [{  amount: { total: '1.00', currency: 'AUD' }, item_list: { items: [  { name: 'Test product', quantity: '1', price: '1.00', currency: 'AUD' } ] } }] 
+      
+                    } 
+                })
+            },  
+            onAuthorize: function(data, actions) { 
+                    return actions.payment.execute().then(function(payment) { alert('Payment completed');  });  
+            } 
+        }, "#paypal-button");
+    </script>
+</body>
