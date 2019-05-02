@@ -30,11 +30,22 @@
 							"intent": "CAPTURE",
 							"purchase_units": [
 								{
-								   "reference_id":"CALLBACK001",
+								   "reference_id":"CALLBACK0070",
 								  "amount": {
 									"currency_code": "USD",
 									"value": "220.00"
-								  }
+								  },
+								"items": [{
+									   "name": "T-Shirt",
+									   "description": "Green XL",
+									   "sku": "sku00770",
+									   "unit_amount": {
+										   "currency_code": "USD",
+										   "value": "220.00"
+									   },
+									   "quantity": "1",
+									   "category": "PHYSICAL_GOODS"
+								   }]
 								}
 							  ]
 						  }
@@ -51,10 +62,10 @@
                         return actions.order.patch([
                             {
                                 op: "replace",
-                                path: "/purchase_units/@reference_id=='CALLBACK001'/amount",
+                                path: "/purchase_units/@reference_id=='CALLBACK0070'/amount",
                                 value:{
 									"currency_code": "USD",
-									"value": "190.00"
+									"value": total
 								  }
                             }
                         ]);
