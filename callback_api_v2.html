@@ -1,0 +1,96 @@
+<html>
+<head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://www.paypalobjects.com/api/checkout.js"></script>
+</head>
+
+<body>
+        <div id="paypal-button"></div>
+    
+	<script>
+            const Item = {
+                name: 'Hat',
+                description: 'A brown hat with some flair!',
+                sku: '8R0WNH4T',
+                price: '0.01'
+            };
+            paypal.Button.render({
+                env: 'production',
+                client: {
+					//stage: 'AdfyUAiHWYFS9fWRkDrY1UEBlR1N1FJSBPT0_m3VKYfbqLnT1Kc6bDRkNoNZ_y4DhzVh59GYlRwHEA1j'
+                    //sandbox: 'ATw1eNq5AcWFqGL9wuv4OJM8yOey5es0ehS8ahucFiw14yBk1S1QXxlg3Bcz3Fumyj98gxRwWx65A14X',
+				   production: 'AVj_kBxthchNiIbvl6OEwr15CYvJPXSlongycr4jPvH7fHxfy_FX_cmu-cUk3v1zyz6e-2VkhObUWlJD', // Kartik
+				   //production: 'AXd4MAn4dM8Bb6YBKaySCyLqgr19sqeDu5fZfaW0DlFGVGThEas1txg5VA1t-N2Sba3IRw9FbCbNYREc'
+				   
+                },
+                payment: function(data, actions) { 
+                    return actions.order.create({
+						  order: {
+							"intent": "CAPTURE",
+							"purchase_units": [
+								{
+								   "reference_id":"CALLBACK001",
+								  "amount": {
+									"currency_code": "USD",
+									"value": "220.00"
+								  }
+								}
+							  ]
+						  }
+					  });
+                },
+                onShippingChange: function(data, actions) {
+                    console.log("inside onShippingChange");
+                    // Patch cart shipping cost with amount
+                    function patchShippingCost(amount) { 
+                        console.log("inside patchShippingCost");
+                        const parsedPrice = parseFloat(Item.price);
+                        const parsedShipping = parseFloat(amount);
+                        const total = (parsedPrice + parsedShipping).toString();
+                        return actions.order.patch([
+                            {
+                                op: "replace",
+                                path: "/purchase_units/@reference_id=='CALLBACK001'/amount",
+                                value:{
+									"currency_code": "USD",
+									"value": "190.00"
+								  }
+                            }
+                        ]);
+                    };
+					
+					console.log(data);
+					console.log(data.shipping_address.country_code);
+                    // We don't ship outside of the USA.
+                    /* if (data.shipping_address.country_code !== 'US') {
+						console.log('it is US country');
+                        return actions.reject();
+                    } */
+                    // Free shipping to CA
+                    if (data.state == 'CA') {
+						console.log('it is CA state');
+                        const shipping = data.amounts.shipping;
+                        // If there are existing shipping costs, patch the cart and remove then
+                        if (shipping && shipping.amount && parseFloat(shipping.amount) !== 0) {
+                            return patchShippingCost('0.00');
+                        }
+                        // Otherwise just pass through
+                        return actions.resolve();
+                    }
+					console.log('otherwise flat shipping cost');
+                    // Otherwise we have a flat shipping cost.
+                    return patchShippingCost('1.00');
+                },
+                onAuthorize: function(data, actions) {
+                    return actions.order.get().then(function(data) {
+						console.warn(data);
+						return actions.order.capture().then(function(data) {
+						  console.warn(data);
+						});
+					  });
+                }
+            }, '#paypal-button');
+        </script>
+    </body>
+    </html>
