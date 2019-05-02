@@ -71,7 +71,17 @@
                                 path: "/purchase_units/@reference_id=='CALLBACK0070'/amount",
                                 value:{
 									"currency_code": "USD",
-									"value": total
+									"value": total,
+									"breakdown": {
+										   "item_total": {
+											   "currency_code": "USD",
+											   "value": parsedPrice
+										   },
+											"shipping" : {
+												"currency_code": "USD",
+											    "value": parsedShipping
+											}
+									}
 								  }
                             }
                         ]);
